@@ -1,0 +1,19 @@
+{
+  "name": "Fried Chicken Index",
+  "short_name": "Chicken",
+  "description": "Rate and map every fried chicken place you visit.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#14100c",
+  "theme_color": "#14100c",
+  "icons": [
+    {
+      "src": "assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

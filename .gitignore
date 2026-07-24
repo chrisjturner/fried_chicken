@@ -1,0 +1,7 @@
+# Local tool settings — machine-specific, not part of the app
+.claude/settings.local.json
+
+# OS junk
+Thumbs.db
+desktop.ini
+.DS_Store
