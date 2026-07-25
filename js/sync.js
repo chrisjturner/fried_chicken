@@ -37,7 +37,12 @@ window.FC = window.FC || {};
           throw new Error('Supabase ' + res.status + ': ' + body.slice(0, 300));
         });
       }
-      return res.status === 204 ? null : res.json();
+      /* A push with `return=minimal` comes back 201 with an empty body, so we
+         can't blindly call res.json() — that throws "Unexpected end of JSON
+         input". Read the text and only parse when there's something to parse. */
+      return res.text().then(function (body) {
+        return body ? JSON.parse(body) : null;
+      });
     });
   }
 
