@@ -141,7 +141,16 @@ window.FC = window.FC || {};
 
   function confirm(message, confirmLabel) {
     return new Promise(function (resolve) {
-      var done = function (val) { closeSheet(); resolve(val); };
+      /* closeSheet() fires onClose, which would resolve `false` and beat the
+         real choice. Guard so the first settle wins: a Delete tap resolves
+         `true` before closeSheet's onClose can overwrite it. */
+      var settled = false;
+      var settle = function (val) {
+        if (settled) return;
+        settled = true;
+        resolve(val);
+      };
+      var done = function (val) { settle(val); closeSheet(); };
       sheet(el('div', { class: 'confirm' }, [
         el('p', { text: message }),
         el('div', { class: 'row gap' }, [
@@ -149,7 +158,7 @@ window.FC = window.FC || {};
           el('button', { class: 'btn danger', onclick: function () { done(true); } },
             confirmLabel || 'Delete')
         ])
-      ]), { onClose: function () { resolve(false); } });
+      ]), { onClose: function () { settle(false); } });
     });
   }
 
