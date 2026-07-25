@@ -1,6 +1,6 @@
 /* Caches the app shell so entries can still be logged with no signal.
    Bump CACHE when you change any of the files below. */
-var CACHE = 'fci-v1';
+var CACHE = 'fci-v2';
 
 var SHELL = [
   './',
