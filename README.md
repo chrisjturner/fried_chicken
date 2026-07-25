@@ -55,7 +55,7 @@ repo:
 It then behaves like an app: full screen, its own icon, and it still opens and
 saves entries with no signal (they sync when you're back online).
 
-## Sharing data between the two of you
+## Sharing data 
 
 Out of the box everything is stored in your own browser and goes nowhere. To
 sync, both of you point the app at one free Supabase project:
