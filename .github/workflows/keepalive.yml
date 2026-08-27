@@ -1,0 +1,33 @@
+name: Keep Supabase awake
+
+on:
+  schedule:
+    - cron: "0 6 */4 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Ping Supabase so it never idles
+        continue-on-error: true
+        run: |
+          curl --silent --show-error --max-time 30 \
+            "https://tmiujuhylgkazcskrfpo.supabase.co/rest/v1/places?select=id&limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
+
+      - name: Heartbeat so GitHub never disables the schedule
+        run: |
+          mkdir -p .keepalive
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > .keepalive/last-ping.txt
+          git config user.name "keepalive-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add .keepalive/last-ping.txt
+          git commit -m "keepalive $(date -u +%F)" || exit 0
+          git push
