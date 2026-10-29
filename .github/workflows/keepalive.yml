@@ -14,16 +14,6 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Heartbeat commit so GitHub never disables the schedule
-        run: |
-          mkdir -p .keepalive
-          date -u +"%Y-%m-%dT%H:%M:%SZ" > .keepalive/last-ping.txt
-          git config user.name "keepalive-bot"
-          git config user.email "actions@users.noreply.github.com"
-          git add .keepalive/last-ping.txt
-          git commit -m "keepalive $(date -u +%F)" || exit 0
-          git push
-
       - name: Write to Supabase (a real write counts as activity) — fail loudly
         run: |
           now=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
@@ -36,6 +26,20 @@ jobs:
             -d "{\"last_ping\":\"$now\"}")
           echo "HTTP $code"; cat /tmp/resp.txt
           if [ "$code" -lt 200 ] || [ "$code" -ge 300 ]; then
-            echo "::error::Keepalive WRITE failed (HTTP $code) — project paused or SUPABASE_ANON_KEY secret is wrong."
+            echo "::error::Keepalive WRITE failed (HTTP $code) — project paused or SUPABASE_ANON_KEY secret wrong."
             exit 1
           fi
+
+      - name: Heartbeat commit (best effort — never fails the job)
+        if: always()
+        continue-on-error: true
+        run: |
+          git config user.name "keepalive-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git fetch origin main
+          git reset --soft origin/main
+          mkdir -p .keepalive
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > .keepalive/last-ping.txt
+          git add .keepalive/last-ping.txt
+          git commit -m "keepalive $(date -u +%F)" || exit 0
+          git push origin HEAD:main || echo "push skipped (non-fatal)"
